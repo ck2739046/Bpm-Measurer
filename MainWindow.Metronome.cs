@@ -77,8 +77,14 @@ public partial class MainWindow
     {
         if (_bgmStream == 0 || _timingPoints.Count == 0 || !HasClicks) return;
 
-        double nextBeat = Math.Floor(TimingEngine.GetBeatIndexAtTime(currentPos, _timingPoints)) + 1.0;
-        double i = double.IsNaN(_armedUntilBeat) ? nextBeat : Math.Max(nextBeat, _armedUntilBeat);
+        // 网格拍按段对齐：段起点可能是浮点（如 20.5），不可按全局整数拍步进，
+        // 否则跨段后武装的拍会落到非网格位置造成错位。
+        double i;
+        if (double.IsNaN(_armedUntilBeat))
+            i = TimingEngine.FirstGridBeatAtOrAfter(
+                TimingEngine.GetBeatIndexAtTime(currentPos, _timingPoints), _timingPoints);
+        else
+            i = _armedUntilBeat;
         double untilTime = currentPos + ArmHorizonSec;
 
         int guard = 0;
@@ -88,8 +94,8 @@ public partial class MainWindow
             if (beatTime > untilTime) break;
             if (beatTime >= currentPos)   // 跳过已过去的拍（mixtime 不会回放）
                 ArmOneBeat(i, beatTime);
-            _armedUntilBeat = i + 1.0;
-            i += 1.0;
+            i = TimingEngine.NextGridBeat(i, _timingPoints);
+            _armedUntilBeat = i;
         }
 
         PrunePastBeats(currentPos);
