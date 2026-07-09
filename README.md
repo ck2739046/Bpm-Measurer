@@ -1,10 +1,49 @@
-# BPM Measurer
+<div align="center">
 
-A tool for measuring and editing **BPM timing** of audio files, with waveform/spectrogram visualization and a built-in metronome.
+<h1>
+  <img src="icon/icon.svg" width="110" alt="logo">
+  <br>BPM Measurer
+</h1>
 
-> Run into issues, need a hand, want to report bugs, share suggestions, or talk development? Join our QQ group chat **`868888361`**
+<h3>🎵 Viusal audio BPM measuring tool 🎵</h3>
 
+<br>
+
+A tool for measuring **BPM timing** of audio, with waveform/spectrogram visualization and a metronome.
+
+<br>
+
+![](https://img.shields.io/github/stars/ck2739046/Bpm-Measurer?label=Stars)
+![](https://img.shields.io/github/downloads/ck2739046/Bpm-Measurer/total?label=Downloads)
+
+🔗 [**GitHub Repo**](https://github.com/ck2739046/Bpm-Measurer)
+&nbsp;•&nbsp;
+📥︎ [**Download Release**](https://github.com/ck2739046/Bpm-Measurer/releases/latest)
+&nbsp;•&nbsp;
 ▶️ [**Demo Video**](https://www.bilibili.com/video/BV1fD786hE3M)
+
+</div>
+
+> Run into issues, need a hand, want to report bugs, share suggestions, or talk development? Join our QQ group chat **`868888361`**.
+
+<br>
+
+## ✨ Highlights
+
+- **Dual visualization**
+    - Waveform and spectrogram views side by side, with synchronized zoom and pan for precise inspection.
+
+- **BPM timing editor**
+    - Add, remove, and modify timing points with full **undo/redo** support.
+    - Import and export timing configs in a human-readable text format.
+
+- **Built-in metronome**
+    - Verify your timing edits by ear.
+
+- **Multi-language**
+    - Supports English and Chinese.
+
+<br>
 
 ## Command-line Arguments
 
@@ -12,11 +51,11 @@ A tool for measuring and editing **BPM timing** of audio files, with waveform/sp
 Bpm Measurer.exe [--language=<lang>] [--audio=<path>] [--notify=<path>] [--parse_config=<path>]
 ```
 
-| Argument           | Description |
-|--------------------|-------------|
-| `--audio=<path>`   | Path to an audio file to load on startup |
+| Argument | Description |
+|----------|-------------|
+| `--audio=<path>` | Path to an audio file to load on startup |
 | `--language=<lang>` | UI language:<br>`en-US` — English<br>`zh-CN` — Chinese<br>Defaults to `zh-CN`. |
-| `--notify=<path>`  | See **HachimiDX Integration** below. |
+| `--notify=<path>` | See **HachimiDX Integration** below. |
 | `--parse_config=<path>` | See **HachimiDX Integration** below. |
 
 ## HachimiDX Integration
