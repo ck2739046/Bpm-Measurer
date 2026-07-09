@@ -335,8 +335,8 @@ public partial class MainWindow
         inputsGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         inputsGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(6) });
         inputsGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        inputsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        inputsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        inputsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(3, GridUnitType.Star) });
+        inputsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
         Grid.SetRow(inputsGrid, 2);
         Grid.SetColumnSpan(inputsGrid, 2);
         grid.Children.Add(inputsGrid);
