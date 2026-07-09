@@ -560,12 +560,13 @@ public partial class MainWindow
         if (newBeat > durationMax)
             return; // no valid slot before the audio end — abort silently
 
-        // Default BPM inherits from the last (previous) segment.
+        // Default BPM and BeatsPerBar inherit from the last (previous) segment.
         // Freeze the beat-index cap at creation time; it will not change afterwards even if
         // offset/duration shift makes this segment's time invalid (UI turns red instead).
         double prevBpm = _rawPoints[^1].Bpm;
+        int prevBeatsPerBar = _rawPoints[^1].BeatsPerBar;
         var newId = Guid.NewGuid();
-        _rawPoints.Add(new RawTimingPoint(newId, newBeat, prevBpm, durationMax));
+        _rawPoints.Add(new RawTimingPoint(newId, newBeat, prevBpm, durationMax, prevBeatsPerBar));
         _rawPoints.Sort((a, b) => a.BeatIndex.CompareTo(b.BeatIndex));
         _expandedSegmentId = newId; // auto-expand the freshly added segment
         _scrollExpandedToBottom = true;
