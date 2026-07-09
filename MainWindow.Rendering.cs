@@ -259,7 +259,7 @@ public partial class MainWindow
                         TextAlignment = TextAlignment.Center,
                         Width = 30
                     };
-                    Canvas.SetLeft(upTri, x - 15);
+                    Canvas.SetLeft(upTri, x - upTri.Width / 2);
                     Canvas.SetTop(upTri, 0);
                     _beatRowElements.Add(upTri);
                     BeatRowCanvas.Children.Add(upTri);
@@ -275,7 +275,7 @@ public partial class MainWindow
                         TextAlignment = TextAlignment.Center,
                         Width = 50
                     };
-                    Canvas.SetLeft(tb, x - 15);
+                    Canvas.SetLeft(tb, x - tb.Width / 2);
                     Canvas.SetTop(tb, 12);
                     _beatRowElements.Add(tb);
                     BeatRowCanvas.Children.Add(tb);
@@ -290,7 +290,7 @@ public partial class MainWindow
                         TextAlignment = TextAlignment.Center,
                         Width = 30
                     };
-                    Canvas.SetLeft(downTri, x - 15);
+                    Canvas.SetLeft(downTri, x - downTri.Width / 2);
                     Canvas.SetTop(downTri, 22);
                     _beatRowElements.Add(downTri);
                     BeatRowCanvas.Children.Add(downTri);
