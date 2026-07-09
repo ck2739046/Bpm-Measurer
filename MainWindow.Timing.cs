@@ -64,6 +64,7 @@ public partial class MainWindow
     {
         if (_isPlaying) PausePlayback();
         beatIndex = Math.Max(0.001, beatIndex);
+        beatIndex = Math.Round(beatIndex * 1000.0) / 1000.0;
 
         // Clamp to the frozen cap captured when this segment was created (does not change afterwards).
         int segIdx = -1;
@@ -350,7 +351,7 @@ public partial class MainWindow
         {
             beatField = SegmentRowFactory.BuildStepper(
                 Loc("Beat_Label"),
-                new[] { 1.0, 0.1 }, 0.001, point.MaxBeatIndex, 1,
+                new[] { 1.0, 0.1 }, 0.001, point.MaxBeatIndex, 3,
                 Color.FromRgb(0xDD, 0xDD, 0xDD),
                 point.Id, false, point.BeatIndex, 0,
                 v =>

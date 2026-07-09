@@ -242,7 +242,7 @@ public partial class MainWindow
                     double globalBeatIndex = point.BeatIndex + relBeat;
                     string beatLabel = Math.Abs(globalBeatIndex % 1.0) < 0.0001
                         ? ((long)Math.Round(globalBeatIndex)).ToString()
-                        : globalBeatIndex.ToString("0.#");
+                        : globalBeatIndex.ToString("0.###");
 
                     var beatColor = isSectionStart
                         ? new SolidColorBrush(Color.FromRgb(0x4A, 0xDE, 0x80))
