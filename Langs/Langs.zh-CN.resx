@@ -11,6 +11,7 @@
   <data name="Pause" xml:space="preserve"><value>暂停</value></data>
   <data name="JumpToStart" xml:space="preserve"><value>开头</value></data>
   <data name="Metronome" xml:space="preserve"><value>节拍器</value></data>
+  <data name="MetronomeVolume" xml:space="preserve"><value>节拍器音量</value></data>
   <data name="SelectAudioFile" xml:space="preserve"><value>选择音频文件</value></data>
   <data name="AudioFiles" xml:space="preserve"><value>音频文件</value></data>
   <data name="AllFiles" xml:space="preserve"><value>所有文件</value></data>

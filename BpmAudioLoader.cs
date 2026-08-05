@@ -11,8 +11,6 @@ public class BpmAudioData
     /// <summary>原始声道数（仅显示用）；RawSamples 已下混为 mono。</summary>
     public int Channels { get; init; }
     public double Duration { get; init; }
-    /// <summary>mono RMS（归一化 0~1），加载时算（必须在 RawSamples 释放前）。用于节拍器自适应响度。</summary>
-    public double RmsLevel { get; set; }
 }
 
 public static class BpmAudioLoader
@@ -56,30 +54,13 @@ public static class BpmAudioLoader
                 }
             }
 
-            // mono RMS（抽样以加速，对响度估计足够）——必须在 RawSamples 释放前算
-            double rmsLevel = 0.0;
-            {
-                long n = samples.Length;
-                int step = n > 200000 ? 8 : 1;
-                double sumSq = 0.0;
-                long count = 0;
-                for (long k = 0; k < n; k += step)
-                {
-                    double v = samples[k] / 32768.0;
-                    sumSq += v * v;
-                    count++;
-                }
-                if (count > 0) rmsLevel = Math.Sqrt(sumSq / count);
-            }
-
             return new BpmAudioData
             {
                 FilePath = filePath,
                 RawSamples = samples,
                 SampleRate = info.freq,
                 Channels = channels,
-                Duration = duration,
-                RmsLevel = rmsLevel
+                Duration = duration
             };
         }
         catch

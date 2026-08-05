@@ -155,6 +155,8 @@ public partial class MainWindow
     private void MetronomeSyncProc(int handle, int channel, int data, IntPtr user)
     {
         if (!HasClicks) return;
+        float clickVolume = System.Threading.Volatile.Read(ref _effectiveClickVolume);
+        if (clickVolume <= 0) return;
         var clicks = _metronomeClicks!;
         double beatIndex = BitConverter.Int64BitsToDouble((long)user);
         var accent = GetAccentForBeat(beatIndex);   // 纯函数：只读 _timingPoints（播放中不变）
@@ -163,7 +165,7 @@ public partial class MainWindow
         int ch = Bass.BASS_SampleGetChannel(clicks[assetIdx].Handle, BASSFlag.BASS_DEFAULT);
         if (ch != 0)
         {
-            Bass.BASS_ChannelSetAttribute(ch, BASSAttribute.BASS_ATTRIB_VOL, (float)_clickVol);
+            Bass.BASS_ChannelSetAttribute(ch, BASSAttribute.BASS_ATTRIB_VOL, clickVolume);
             Bass.BASS_ChannelPlay(ch, true);
         }
     }

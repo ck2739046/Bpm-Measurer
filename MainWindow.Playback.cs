@@ -175,10 +175,9 @@ public partial class MainWindow
         }
         LoadTimingLogger.Phase("BASS stream create");
 
-        // 节拍器：预生成 click 采样，并按歌曲 RMS 计算自适应 BGM 响度
+        // 节拍器 click 采样须在 BASS_Init 后创建。
         EnsureMetronomeClicks();
-        ComputeClickAndBgmGain();
-        ApplyEffectiveBgmVolume();
+        UpdateMetronomeMix();
 
         // Show loading indicator
         PlaceholderText.Visibility = Visibility.Collapsed;
@@ -338,55 +337,32 @@ public partial class MainWindow
         Bass.BASS_ChannelSetPosition(_bgmStream, bytePos);
     }
 
-    // ── Metronome: adaptive click gain (优先) + BGM 压制(仅响歌) ──
+    private double _metronomeVolume = 0.5;
+    private float _effectiveClickVolume = 0.7f;
+    private const double MaxClickVolume = 1.4;
+    private const double MinBgmVolume = 0.6;
 
-    private double _bgmAutoVol = 1.0;   // 节拍器开启时作用于 _bgmStream 的音量
-    private double _clickVol = 1.0;     // 作用于每个 click channel 的音量（0~1）
-    private const double HeadroomDb = 6.0;   // click 目标比歌曲 RMS 高 6 dB
-    private const double MinClickVol = 0.5;  // click 最低音量（安静歌避免太轻）
-    private const double MinBgmVol = 0.6;    // 仅当 click 拉满(1.0)仍不够时，BGM 才降，且最多降到 0.6
-
-    /// <summary>
-    /// 在歌曲加载时一次性决定响度策略：优先让 click 自身适配歌曲（VOL 0.5~1.0，BGM 不动）；
-    /// 仅当歌曲太响、click 拉满仍达不到目标时，才适度降低 BGM。
-    /// 结果写入 _clickVol 与 _bgmAutoVol。
-    /// </summary>
-    private void ComputeClickAndBgmGain()
+    private void MetronomeVolumeSlider_ValueChanged(
+        object sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        _clickVol = 1.0;
-        _bgmAutoVol = 1.0;
-        if (_audioData == null || _metronomeClicks == null || _metronomeClicks.Length == 0)
-            return;
-
-        double songRms = _audioData.RmsLevel;
-        if (songRms < 1e-6) songRms = 1e-6;
-        // 基准取最弱档 RMS：保证连弱拍都能达到目标响度
-        double baselineRms = double.MaxValue;
-        foreach (var asset in _metronomeClicks)
-            if (asset.Rms < baselineRms) baselineRms = asset.Rms;
-
-        double headroom = Math.Pow(10.0, HeadroomDb / 20.0);     // click 目标 = songRms * headroom
-        double needGain = (songRms * headroom) / baselineRms;     // 让弱拍达标所需的 click 增益
-
-        if (needGain <= 1.0)
-        {
-            // click 自身足够：调 click gain，BGM 保持原音量
-            _clickVol = Math.Clamp(needGain, MinClickVol, 1.0);
-            _bgmAutoVol = 1.0;
-        }
-        else
-        {
-            // 歌曲太响：click 拉满，BGM 适度降低补足 headroom
-            _clickVol = 1.0;
-            _bgmAutoVol = Math.Clamp(1.0 / needGain, MinBgmVol, 1.0);
-        }
+        _metronomeVolume = Math.Clamp(e.NewValue / 100.0, 0.0, 1.0);
+        MetronomeVolumeValueText.Text = $"{Math.Round(e.NewValue):0}%";
+        UpdateMetronomeMix();
     }
 
-    /// <summary>按当前节拍器开关状态应用 BGM 音量：开→_bgmAutoVol，关→原音量。</summary>
+    private void UpdateMetronomeMix()
+    {
+        float clickVolume = (float)(_metronomeVolume * MaxClickVolume);
+        System.Threading.Volatile.Write(ref _effectiveClickVolume, clickVolume);
+        ApplyEffectiveBgmVolume();
+    }
+
     private void ApplyEffectiveBgmVolume()
     {
         if (_bgmStream == 0) return;
-        double vol = _metronomeEnabled ? _bgmAutoVol : 1.0;
+        double vol = _metronomeEnabled
+            ? 1.0 - _metronomeVolume * (1.0 - MinBgmVolume)
+            : 1.0;
         Bass.BASS_ChannelSetAttribute(_bgmStream, BASSAttribute.BASS_ATTRIB_VOL, (float)vol);
     }
 

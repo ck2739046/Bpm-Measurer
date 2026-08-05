@@ -99,30 +99,80 @@
                         </StackPanel>
                     </Button>
 
-                    <Button x:Name="MetronomeBtn" MinWidth="60"
-                            Click="MetronomeBtn_Click" Margin="8,0,0,0"
-                            Background="#FF1E6B3A" Foreground="White" BorderThickness="0"
-                            Cursor="Hand" IsEnabled="False">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}"
-                                        CornerRadius="6" Padding="12,4">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Button.Template>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBox x:Name="MetronomeEmoji" Text="🔊"
-                                     FontFamily="Segoe UI Emoji" FontSize="14"
-                                     Foreground="White" Background="Transparent" BorderThickness="0"
-                                     IsReadOnly="True" IsHitTestVisible="False"
-                                     TextOptions.TextFormattingMode="Display"
-                                     VerticalAlignment="Center" Margin="0,0,4,0"/>
-                            <TextBlock x:Name="MetronomeText" Text="节拍器"
-                                       Foreground="White" FontWeight="Bold" FontSize="12"
+                    <Grid Margin="8,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button x:Name="MetronomeBtn" Grid.Column="0" MinWidth="60"
+                                Click="MetronomeBtn_Click"
+                                Background="#FF1E6B3A" Foreground="White" BorderThickness="0"
+                                Cursor="Hand" IsEnabled="False">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                            CornerRadius="6,0,0,6" Padding="12,4">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox x:Name="MetronomeEmoji" Text="🔊"
+                                         FontFamily="Segoe UI Emoji" FontSize="14"
+                                         Foreground="White" Background="Transparent" BorderThickness="0"
+                                         IsReadOnly="True" IsHitTestVisible="False"
+                                         TextOptions.TextFormattingMode="Display"
+                                         VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                <TextBlock x:Name="MetronomeText" Text="节拍器"
+                                           Foreground="White" FontWeight="Bold" FontSize="12"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <ToggleButton x:Name="MetronomeVolumeBtn" Grid.Column="1" Width="24"
+                                      IsEnabled="{Binding IsEnabled, ElementName=MetronomeBtn}"
+                                      Background="{Binding Background, ElementName=MetronomeBtn}"
+                                      Foreground="White" BorderThickness="0" Cursor="Hand"
+                                      ToolTip="{lex:Loc MetronomeVolume}">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border Background="{TemplateBinding Background}"
+                                            CornerRadius="0,6,6,0" Padding="5,4">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                            <TextBlock Text="▾" Foreground="White" FontSize="11"
                                        VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
+                        </ToggleButton>
+
+                        <Popup x:Name="MetronomeVolumePopup"
+                               PlacementTarget="{Binding ElementName=MetronomeVolumeBtn}"
+                               Placement="Bottom" VerticalOffset="6"
+                               StaysOpen="False" AllowsTransparency="True"
+                               PopupAnimation="Fade"
+                               IsOpen="{Binding IsChecked, ElementName=MetronomeVolumeBtn, Mode=TwoWay}">
+                            <Border Width="210" Padding="12"
+                                    Background="#FF252525" BorderBrush="#FF4A4A4A"
+                                    BorderThickness="1" CornerRadius="6">
+                                <StackPanel>
+                                    <DockPanel Margin="0,0,0,8">
+                                        <TextBlock x:Name="MetronomeVolumeValueText" DockPanel.Dock="Right"
+                                                   Text="50%" Foreground="#FF818CF8"
+                                                   FontWeight="Bold" FontSize="12"/>
+                                        <TextBlock Text="{lex:Loc MetronomeVolume}"
+                                                   Foreground="White" FontWeight="Bold" FontSize="12"/>
+                                    </DockPanel>
+                                    <Slider x:Name="MetronomeVolumeSlider"
+                                            Minimum="0" Maximum="100" Value="50"
+                                            TickFrequency="1" IsSnapToTickEnabled="True"
+                                            IsMoveToPointEnabled="True"
+                                            ValueChanged="MetronomeVolumeSlider_ValueChanged"/>
+                                </StackPanel>
+                            </Border>
+                        </Popup>
+                    </Grid>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center"

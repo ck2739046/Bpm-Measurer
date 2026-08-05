@@ -11,13 +11,11 @@ public enum ClickAccent { Strong, Weak }
 public sealed class MetronomeClickAsset : IDisposable
 {
     public int Handle { get; }
-    public double Rms { get; }
     public ClickAccent Accent { get; }
 
-    public MetronomeClickAsset(int handle, double rms, ClickAccent accent)
+    public MetronomeClickAsset(int handle, ClickAccent accent)
     {
         Handle = handle;
-        Rms = rms;
         Accent = accent;
     }
 
@@ -55,7 +53,7 @@ public static class MetronomeClick
             var assets = new MetronomeClickAsset[Specs.Length];
             foreach (var spec in Specs)
             {
-                var (pcm, rms) = Synthesize(spec, sampleRate);
+                var pcm = Synthesize(spec, sampleRate);
                 // length 为字节数：FLOAT sample 每样本 4 字节
                 int handle = Bass.BASS_SampleCreate(
                     pcm.Length * 4, sampleRate, 1, 8,
@@ -73,7 +71,7 @@ public static class MetronomeClick
                     Bass.BASS_SampleFree(handle);
                     return Array.Empty<MetronomeClickAsset>();
                 }
-                assets[(int)spec.Accent] = new MetronomeClickAsset(handle, rms, spec.Accent);
+                assets[(int)spec.Accent] = new MetronomeClickAsset(handle, spec.Accent);
             }
             return assets;
         }
@@ -84,22 +82,20 @@ public static class MetronomeClick
         }
     }
 
-    private static (float[] pcm, double rms) Synthesize(AccentSpec spec, int sampleRate)
+    private static float[] Synthesize(AccentSpec spec, int sampleRate)
     {
         int length = (int)(DurationSec * sampleRate);
         var pcm = new float[length];
         double phaseStep = 2.0 * Math.PI * spec.Frequency / sampleRate;
         double phase = 0.0;
-        double sumSq = 0.0;
         for (int i = 0; i < length; i++)
         {
             double square = Math.Sin(phase) >= 0 ? 1.0 : -1.0;       // 方波
             double env = Math.Exp(-i / (sampleRate * DecayTau));      // 指数衰减包络
             float sample = (float)(spec.Peak * env * square);
             pcm[i] = sample;
-            sumSq += (double)sample * sample;
             phase += phaseStep;
         }
-        return (pcm, Math.Sqrt(sumSq / length));
+        return pcm;
     }
 }

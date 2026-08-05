@@ -11,6 +11,7 @@
   <data name="Pause" xml:space="preserve"><value>Pause</value></data>
   <data name="JumpToStart" xml:space="preserve"><value>Start</value></data>
   <data name="Metronome" xml:space="preserve"><value>Metronome</value></data>
+  <data name="MetronomeVolume" xml:space="preserve"><value>Metronome Volume</value></data>
   <data name="SelectAudioFile" xml:space="preserve"><value>Select Audio File</value></data>
   <data name="AudioFiles" xml:space="preserve"><value>Audio Files</value></data>
   <data name="AllFiles" xml:space="preserve"><value>All Files</value></data>
