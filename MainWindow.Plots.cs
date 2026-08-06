@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Media;
 
 namespace BpmMeasurer;
 
@@ -22,6 +23,10 @@ public partial class MainWindow
         SpectrumModeText.Text = Loc(_spectrogramDisplayMode == SpectrogramDisplayMode.Bass
             ? "SpectrumModeBass"
             : "SpectrumModeNormal");
+        SpectrumModeBtn.Background = new SolidColorBrush(
+            _spectrogramDisplayMode == SpectrogramDisplayMode.Bass
+                ? Color.FromRgb(0x25, 0xA3, 0xB3)   // Bass：青蓝
+                : Color.FromRgb(0xCB, 0x41, 0x24)); // Normal：橘红
     }
 
     private void RebuildSpectrogramTiles()
