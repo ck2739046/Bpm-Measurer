@@ -78,3 +78,57 @@ public class WaveSpectrogramColormap : IColormap
         return new ArgbColor((byte)r, (byte)g, (byte)b);
     }
 }
+
+public sealed class AuditionLikeSpectrogramColormap : IColormap
+{
+    private static readonly (double Position, ArgbColor Color)[] Stops =
+    {
+        (0.00, new ArgbColor(0, 0, 0)),
+        (0.10, new ArgbColor(5, 5, 22)),
+        (0.22, new ArgbColor(17, 16, 79)),
+        (0.34, new ArgbColor(69, 16, 110)),
+        (0.48, new ArgbColor(143, 24, 127)),
+        (0.60, new ArgbColor(219, 47, 75)),
+        (0.72, new ArgbColor(255, 90, 31)),
+        (0.84, new ArgbColor(255, 168, 46)),
+        (0.94, new ArgbColor(255, 240, 100)),
+        (1.00, new ArgbColor(255, 253, 240)),
+    };
+
+    public string Name => "Audition-like Spectrogram";
+    public static readonly int[] Lut = BuildLut();
+
+    private static int[] BuildLut()
+    {
+        var inst = new AuditionLikeSpectrogramColormap();
+        var lut = new int[256];
+        for (int i = 0; i < lut.Length; i++)
+            lut[i] = unchecked((int)inst.GetColor(i / 255.0).ARGB);
+        return lut;
+    }
+
+    public ArgbColor GetColor(double fraction)
+    {
+        if (!double.IsFinite(fraction))
+            return Stops[0].Color;
+
+        fraction = Math.Clamp(fraction, 0.0, 1.0);
+        for (int i = 1; i < Stops.Length; i++)
+        {
+            if (fraction > Stops[i].Position) continue;
+
+            var from = Stops[i - 1];
+            var to = Stops[i];
+            double t = (fraction - from.Position) / (to.Position - from.Position);
+            return new ArgbColor(
+                Lerp(from.Color.R, to.Color.R, t),
+                Lerp(from.Color.G, to.Color.G, t),
+                Lerp(from.Color.B, to.Color.B, t));
+        }
+
+        return Stops[^1].Color;
+    }
+
+    private static byte Lerp(byte from, byte to, double t)
+        => (byte)Math.Round(from + (to - from) * t);
+}

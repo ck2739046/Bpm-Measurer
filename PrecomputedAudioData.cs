@@ -37,6 +37,8 @@ public class WaveformEnvelope
 
 public class SpectrogramData
 {
+    public const double DefaultFrequencyLogBase = 50.0;
+
     public float[,] Magnitudes { get; init; } = new float[0, 0];
     public int FreqBands { get; init; }
     public int Columns { get; init; }
@@ -56,6 +58,7 @@ public class SpectrogramData
     /// when <c>sampleRate*0.005</c> is not an integer (e.g. 44100 Hz → hop 220, not 220.5).</summary>
     public double TimeStep { get; init; }
     public double Duration { get; init; }
+    public double FrequencyLogBase { get; init; } = DefaultFrequencyLogBase;
     /// <summary>
     /// Global min/max over <see cref="Magnitudes"/>, computed once on the background
     /// thread during <see cref="PrecomputedAudioData.ComputeSpectrogram"/>. Precomputed so
@@ -129,7 +132,7 @@ public static class PrecomputedAudioData
         const int numBins = fftSize / 2;
         const int freqBands = 256;
         const int columnsPerSecond = 200;
-        const double logBase = 50.0;
+        const double logBase = SpectrogramData.DefaultFrequencyLogBase;
         const float invFftSize = 1f / fftSize;
 
         // ── Precompute log bin indices (single-threaded, 256 iterations) ──
@@ -341,6 +344,7 @@ public static class PrecomputedAudioData
             // an integer (e.g. 44100 Hz → hop rounds to 220, not 220.5).
             TimeStep = sampleRate > 0 ? hopSamples / (double)sampleRate : timeStep,
             Duration = duration,
+            FrequencyLogBase = logBase,
             // Precompute the global brightness range here (background thread) so the tiled
             // renderer doesn't rescan the whole matrix on the UI thread, and all tiles share
             // the same normalization.

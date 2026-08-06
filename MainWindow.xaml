@@ -173,6 +173,24 @@
                             </Border>
                         </Popup>
                     </Grid>
+
+                    <Button x:Name="SpectrumModeBtn" MinWidth="52"
+                            Click="SpectrumModeBtn_Click" Margin="8,0,0,0"
+                            IsEnabled="{Binding IsEnabled, ElementName=OpenBtn}"
+                            Background="#FF3A3A3A" Foreground="White" BorderThickness="0"
+                            Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}"
+                                        CornerRadius="6" Padding="12,4">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+                        <TextBlock x:Name="SpectrumModeText" Text="低音"
+                                   Foreground="White" FontWeight="Bold" FontSize="12"
+                                   VerticalAlignment="Center"/>
+                    </Button>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center"

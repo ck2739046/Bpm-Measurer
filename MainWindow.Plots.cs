@@ -10,9 +10,54 @@ namespace BpmMeasurer;
 /// </summary>
 public partial class MainWindow
 {
+    private SpectrogramDisplayMode _spectrogramDisplayMode = SpectrogramDisplayMode.Bass;
+
     private void SetBothXLimits(double left, double right)
     {
         _viewHalfWidth = (right - left) / 2;
+    }
+
+    private void UpdateSpectrumModeText()
+    {
+        SpectrumModeText.Text = Loc(_spectrogramDisplayMode == SpectrogramDisplayMode.Bass
+            ? "SpectrumModeBass"
+            : "SpectrumModeNormal");
+    }
+
+    private void RebuildSpectrogramTiles()
+    {
+        _specTileSet?.Dispose();
+        _specTileSet = null;
+
+        if (_specCache == null)
+        {
+            _specConfigured = false;
+            return;
+        }
+
+        _specTileSet = new SpectrogramTileSet(
+            _specCache, SpectrogramCanvas, _spectrogramDisplayMode);
+        _specTileSet.Build();
+        _specConfigured = true;
+
+        SpectrogramCanvas.Visibility = Visibility.Visible;
+        SpectrogramCanvas.UpdateLayout();
+        UpdateSpectrogramTransform();
+    }
+
+    private void SpectrumModeBtn_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isPlaying)
+            PausePlayback();
+
+        _spectrogramDisplayMode = _spectrogramDisplayMode == SpectrogramDisplayMode.Bass
+            ? SpectrogramDisplayMode.Normal
+            : SpectrogramDisplayMode.Bass;
+        UpdateSpectrumModeText();
+
+        if (_audioData == null || _specCache == null) return;
+        RebuildSpectrogramTiles();
+        RenderVisuals();
     }
 
     private void EnsurePlotsConfigured()
@@ -36,15 +81,7 @@ public partial class MainWindow
         }
 
         if (!_specConfigured)
-        {
-            _specConfigured = true;
-
-            _specTileSet = new SpectrogramTileSet(_specCache, SpectrogramCanvas);
-            _specTileSet.Build();
-
-            SpectrogramCanvas.Visibility = Visibility.Visible;
-            SpectrogramCanvas.UpdateLayout();
-        }
+            RebuildSpectrogramTiles();
     }
 
     private void WaveformCanvas_SizeChanged(object sender, SizeChangedEventArgs e)

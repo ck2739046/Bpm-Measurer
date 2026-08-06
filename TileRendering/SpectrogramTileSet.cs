@@ -11,10 +11,15 @@ namespace BpmMeasurer;
 internal sealed class SpectrogramTileSet : TileSet
 {
     private readonly SpectrogramData _data;
+    private readonly SpectrogramDisplayMode _mode;
 
-    public SpectrogramTileSet(SpectrogramData data, Panel container) : base(container)
+    public SpectrogramTileSet(
+        SpectrogramData data,
+        Panel container,
+        SpectrogramDisplayMode mode) : base(container)
     {
         _data = data;
+        _mode = mode;
         // GlobalRange is precomputed on the background thread during
         // PrecomputedAudioData.ComputeSpectrogram, so every tile shares identical brightness
         // without rescanning the whole magnitude matrix here on the UI thread.
@@ -47,7 +52,8 @@ internal sealed class SpectrogramTileSet : TileSet
             int colCount = System.Math.Min(TileWidth, totalCols - colStart);
             if (colCount <= 0) break;
 
-            var bmp = SpectrogramBitmapRenderer.CreateTile(_data, colStart, colCount, _data.GlobalRange);
+            var bmp = SpectrogramBitmapRenderer.CreateTile(
+                _data, colStart, colCount, _data.GlobalRange, _mode);
             var image = CreateTileImage(bmp);
             var (scale, translate) = GetTransforms(image);
 

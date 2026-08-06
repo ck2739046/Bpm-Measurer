@@ -30,6 +30,7 @@ public partial class MainWindow
         PlaceholderText.Text = Loc("DropHint");
         StopBtnText.Text = Loc("JumpToStart");
         MetronomeText.Text = Loc("Metronome");
+        UpdateSpectrumModeText();
         PlayPauseText.Text = Loc("Play");
         FileNameText.Text = Loc("NoAudio");
         ImportConfigText.Text = Loc("ImportConfig_Btn");

@@ -5,15 +5,23 @@ using System.Windows.Media.Imaging;
 
 namespace BpmMeasurer;
 
-/// <summary>
-/// Converts a <see cref="SpectrogramData"/> to a <see cref="WriteableBitmap"/>.
-/// Uses <see cref="WaveSpectrogramColormap"/> and <see cref="Range.Normalize"/>
-/// to map normalized magnitude to color.
-/// </summary>
+public enum SpectrogramDisplayMode
+{
+    Bass,
+    Normal
+}
+
+/// <summary>Converts spectrogram data using the selected display mode.</summary>
 public static class SpectrogramBitmapRenderer
 {
-    public static WriteableBitmap Create(SpectrogramData data)
-        => CreateTile(data, 0, data.Columns, ComputeGlobalRange(data.Magnitudes));
+    private const double NormalFrequencyBoostStartHz = 300.0;
+    private const double NormalFrequencyBoostFullHz = 3000.0;
+    private const double NormalFrequencyBrightnessBoost = 0.20;
+
+    public static WriteableBitmap Create(
+        SpectrogramData data,
+        SpectrogramDisplayMode mode = SpectrogramDisplayMode.Bass)
+        => CreateTile(data, 0, data.Columns, ComputeGlobalRange(data.Magnitudes), mode);
 
     /// <summary>
     /// Parallel chunked min/max over raw magnitudes. Local per-thread reduction
@@ -30,17 +38,24 @@ public static class SpectrogramBitmapRenderer
     /// <paramref name="colCount"/>. The caller-supplied <paramref name="globalRange"/>
     /// ensures consistent brightness across tiles.
     /// </summary>
-    public static WriteableBitmap CreateTile(SpectrogramData data, int colStart, int colCount, Range globalRange)
+    public static WriteableBitmap CreateTile(
+        SpectrogramData data,
+        int colStart,
+        int colCount,
+        Range globalRange,
+        SpectrogramDisplayMode mode)
     {
         int w = colCount;
         int h = data.FreqBands;
         var bmp = new WriteableBitmap(w, h, 96, 96, PixelFormats.Pbgra32, null);
 
-        var lut = WaveSpectrogramColormap.Lut;
+        var lut = mode == SpectrogramDisplayMode.Normal
+            ? AuditionLikeSpectrogramColormap.Lut
+            : WaveSpectrogramColormap.Lut;
 
         // Y-axis exponential remap (merged with Y-flip into the pixel fill loop),
         // avoiding a separate resampled array.
-        const double yExp = 1.8;
+        double yExp = mode == SpectrogramDisplayMode.Normal ? 1.0 : 1.8;
         int maxSrcIndex = h - 1;
 
         var mags = data.Magnitudes;
@@ -56,6 +71,22 @@ public static class SpectrogramBitmapRenderer
             int srcHi = Math.Min(srcLo + 1, maxSrcIndex);
             float frac = (float)(srcBandFloat - srcLo);
             float oneMinusFrac = 1f - frac;
+            double brightnessScale = 1.0;
+            if (mode == SpectrogramDisplayMode.Normal && data.SampleRate > 0)
+            {
+                double bandNorm = srcBandFloat / maxSrcIndex;
+                double logBase = data.FrequencyLogBase;
+                double binNorm = logBase > 1.0
+                    ? (Math.Pow(logBase, bandNorm) - 1.0) / (logBase - 1.0)
+                    : bandNorm;
+                double frequencyHz = binNorm * data.SampleRate * 0.5;
+                double boostPosition = Math.Clamp(
+                    (frequencyHz - NormalFrequencyBoostStartHz) /
+                    (NormalFrequencyBoostFullHz - NormalFrequencyBoostStartHz),
+                    0.0, 1.0);
+                double smoothBoost = boostPosition * boostPosition * (3.0 - 2.0 * boostPosition);
+                brightnessScale += NormalFrequencyBrightnessBoost * smoothBoost;
+            }
 
             int rowOffset = y * w;
             for (int x = 0; x < w; x++)
@@ -64,6 +95,7 @@ public static class SpectrogramBitmapRenderer
                 float mag = mags[srcLo, srcCol] * oneMinusFrac
                           + mags[srcHi, srcCol] * frac;
                 double fraction = range.Normalize(mag, true);
+                fraction = Math.Min(1.0, fraction * brightnessScale);
                 pixels[rowOffset + x] = lut[(int)(fraction * 255)];
             }
         });
