@@ -8,6 +8,7 @@
     </PropertyGroup>
     <ItemGroup>
         <Compile Include="..\..\Models\TimingPoint.cs" Link="Models\TimingPoint.cs" />
+        <Compile Include="..\..\DroppedFiles.cs" Link="DroppedFiles.cs" />
         <Compile Include="..\..\TimingConfigParser.cs" Link="TimingConfigParser.cs" />
     </ItemGroup>
 </Project>

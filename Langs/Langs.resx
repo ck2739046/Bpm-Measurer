@@ -38,6 +38,8 @@
   <data name="Segment_Illegal" xml:space="preserve"><value>超出音频末尾</value></data>
   <data name="ConfigImport_Failed" xml:space="preserve"><value>配置文件解析失败。</value></data>
   <data name="ConfigExport_Failed" xml:space="preserve"><value>配置文件写入失败。</value></data>
+  <data name="ConfigPrompt_Title" xml:space="preserve"><value>已有配置</value></data>
+  <data name="ConfigPrompt_Text" xml:space="preserve"><value>导入新配置会覆盖当前配置。&#xA;&#xA;「是」：先导出当前配置，再导入新配置&#xA;「否」：直接导入，当前配置将被丢弃</value></data>
   <data name="ConfigImport_Err_NoOffset" xml:space="preserve"><value>缺少 global_offset，或其值无效</value></data>
   <data name="ConfigImport_Err_DuplicateOffset" xml:space="preserve"><value>global_offset 只能出现 1 次</value></data>
   <data name="ConfigImport_Err_MultipleInLine" xml:space="preserve"><value>global_offset 行不能混入其它内容</value></data>

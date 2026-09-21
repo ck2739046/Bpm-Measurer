@@ -100,6 +100,7 @@ public partial class MainWindow : Window
         // 拖放不按扩展名过滤:任意文件都可放入。能否成功解码取决于启动时已注册的
         // BASS 插件集(bass_aac/bassflac/bassopus/basswebm + 内置),与文件选择器列出的
         // 扩展名一致;不支持或解析失败的文件会在 BpmAudioLoader.Load 中静默返回 null。
+        // 一次拖入多个文件时,由 DroppedFiles 挑出一个音频与一个 .txt 配置(见 HandleDroppedFiles)。
         DragEnter += (s, e) =>
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
@@ -110,8 +111,8 @@ public partial class MainWindow : Window
             if (e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0)
             {
                 e.Handled = true;
-                var path = files[0];
-                Dispatcher.BeginInvoke(() => LoadAudioFile(path));
+                var (audio, config) = DroppedFiles.Resolve(files);
+                Dispatcher.BeginInvoke(() => HandleDroppedFiles(audio, config));
             }
         };
 

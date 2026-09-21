@@ -118,6 +118,11 @@ public partial class MainWindow
         _isLoading = true;
         OpenBtn.IsEnabled = false;
 
+        // 拖放随音频一起带来的配置在此取出:下面的重置会清空 timing 状态,
+        // 且失败分支不会再把它留到下一次加载。
+        var pendingConfig = _pendingConfigPath;
+        _pendingConfigPath = null;
+
         StopAndFreeStreams();
         CompositionTarget.Rendering -= OnRenderingFrame;
 
@@ -233,18 +238,29 @@ public partial class MainWindow
         RenderVisuals();
         LoadTimingLogger.Phase("Render visuals");
 
-        // Initialize timing state
-        _globalOffset = 0.0;
-        _rawPoints = new List<RawTimingPoint> { new RawTimingPoint(Guid.NewGuid(), 0, 120) };
-        OffsetStepper.SetRange(-_audioData.Duration, _audioData.Duration);
-        RefreshTimingPoints();
-        ResetUndoHistory();
-        ResetExpandedSegmentToAnchor(); // open on the beat-0 anchor after a fresh load
+        // Initialize timing state; a config dropped alongside the audio replaces the
+        // default single-segment state (no prompt: the state is the default right now).
+        ResetTimingToDefault();
+        if (pendingConfig is not null)
+            TryImportConfigFile(pendingConfig);
+
         SidebarPanel.Visibility = Visibility.Visible;
         OverlayCanvas.Visibility = Visibility.Visible;
         BeatRowCanvas.Visibility = Visibility.Visible;
 
         LoadTimingLogger.End($"Duration={_audioData.Duration:F2}s  SR={_audioData.SampleRate}Hz  Ch={_audioData.Channels}");
+    }
+
+    /// <summary>把 timing 状态重置为刚加载音频时的默认值:offset=0,单个 bpm=120 段。</summary>
+    private void ResetTimingToDefault()
+    {
+        _globalOffset = 0.0;
+        _rawPoints = new List<RawTimingPoint> { new RawTimingPoint(Guid.NewGuid(), 0, 120) };
+        if (_audioData != null)
+            OffsetStepper.SetRange(-_audioData.Duration, _audioData.Duration);
+        RefreshTimingPoints();
+        ResetUndoHistory();
+        ResetExpandedSegmentToAnchor(); // open on the beat-0 anchor after a fresh load
     }
 
     private void StartPlayback()

@@ -38,6 +38,8 @@
   <data name="Segment_Illegal" xml:space="preserve"><value>beyond audio end</value></data>
   <data name="ConfigImport_Failed" xml:space="preserve"><value>Failed to parse config file.</value></data>
   <data name="ConfigExport_Failed" xml:space="preserve"><value>Failed to write config file.</value></data>
+  <data name="ConfigPrompt_Title" xml:space="preserve"><value>Existing config</value></data>
+  <data name="ConfigPrompt_Text" xml:space="preserve"><value>Importing a new config will overwrite the current one.&#xA;&#xA;Yes: export the current config first, then import&#xA;No: import now and discard the current config</value></data>
   <data name="ConfigImport_Err_NoOffset" xml:space="preserve"><value>Missing or invalid global_offset</value></data>
   <data name="ConfigImport_Err_DuplicateOffset" xml:space="preserve"><value>global_offset may appear only once</value></data>
   <data name="ConfigImport_Err_MultipleInLine" xml:space="preserve"><value>A global_offset line must not contain anything else</value></data>

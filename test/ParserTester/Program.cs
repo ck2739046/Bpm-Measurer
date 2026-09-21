@@ -23,6 +23,8 @@ class Program
         Console.WriteLine();
         TestValidConfigs();
         Console.WriteLine();
+        TestDroppedFiles();
+        Console.WriteLine();
         Console.WriteLine($"══════════════════════════");
         Console.WriteLine($"  通过: {_passed}  失败: {_failed}");
         Console.WriteLine($"══════════════════════════");
@@ -243,6 +245,54 @@ class Program
         if (pts.Count != 1) { Fail(name, $"段数期望 1，实际 {pts.Count}"); return; }
         if (pts[0].Bpm != 120) { Fail(name, $"bpm 期望 120，实际 {pts[0].Bpm}"); return; }
         Pass(name, $"offset={off}（负值正确接受）段数={pts.Count} bpm={pts[0].Bpm}");
+    }
+
+    // ═══ DroppedFiles 归类 ═══
+
+    static void TestDroppedFiles()
+    {
+        Console.WriteLine("─── 拖放归类测试 ───");
+        Console.WriteLine();
+
+        var dir = Path.Combine(_baseDir, "ValidConfigs");
+
+        CheckDrop("D1_audio_only", new[] { "song.mp3" }, "song.mp3", null);
+        CheckDrop("D2_config_only", new[] { "song.txt" }, null, "song.txt");
+        CheckDrop("D3_txt_listed_first", new[] { "song.txt", "song.flac" }, "song.flac", "song.txt");
+        CheckDrop("D4_multi_no_stem_match",
+            new[] { "b.mp3", "a.mp3", "x.txt", "a.txt" }, "b.mp3", "x.txt");
+        CheckDrop("D5_multi_prefer_same_stem",
+            new[] { "a.mp3", "b.mp3", "x.txt", "a.txt" }, "a.mp3", "a.txt");
+        CheckDrop("D6_unknown_ext_falls_back",
+            new[] { "cover.png", "song.txt" }, "cover.png", "song.txt");
+        CheckDrop("D7_directory_skipped",
+            new[] { dir, "song.mp3" }, "song.mp3", null);
+        CheckDrop("D8_extension_case_insensitive",
+            new[] { "song.MP3", "SONG.TXT" }, "song.MP3", "SONG.TXT");
+        CheckDrop("D9_same_stem_different_dirs",
+            new[] { @"C:\m\song.mp3", @"D:\n\song.txt" }, "song.mp3", "song.txt");
+        CheckDrop("D10_configs_only_pick_first",
+            new[] { "a.txt", "b.txt" }, null, "a.txt");
+        CheckDrop("D11_empty", Array.Empty<string>(), null, null);
+    }
+
+    static void CheckDrop(string name, string[] paths, string? expectAudio, string? expectConfig)
+    {
+        var (audio, config) = DroppedFiles.Resolve(paths);
+        var gotAudio = audio is null ? null : Path.GetFileName(audio);
+        var gotConfig = config is null ? null : Path.GetFileName(config);
+
+        if (!string.Equals(gotAudio, expectAudio, StringComparison.OrdinalIgnoreCase))
+        {
+            Fail(name, $"音频期望 '{expectAudio ?? "null"}'，实际 '{gotAudio ?? "null"}'");
+            return;
+        }
+        if (!string.Equals(gotConfig, expectConfig, StringComparison.OrdinalIgnoreCase))
+        {
+            Fail(name, $"配置期望 '{expectConfig ?? "null"}'，实际 '{gotConfig ?? "null"}'");
+            return;
+        }
+        Pass(name, $"audio={gotAudio ?? "null"}  config={gotConfig ?? "null"}");
     }
 
     // ═══ Helpers ═══
